@@ -399,7 +399,7 @@ hr{
 }
 
 .form-group input[type="text"],
-.form-group textarea { /* إضافة تنسيق للتعليق */
+.form-group textarea {
     width: 100%;
     padding: 12px;
     background: var(--gray-light);
@@ -407,12 +407,12 @@ hr{
     border-radius: 8px;
     color: var(--text-color);
     font-size: 1rem;
-    font-family: 'Noto Kufi Arabic', sans-serif; /* لضمان نفس الخط */
+    font-family: 'Noto Kufi Arabic', sans-serif; 
 }
 
 .form-group textarea {
-    min-height: 100px; /* تحديد ارتفاع مبدئي */
-    resize: vertical; /* السماح بالتكبير عمودياً فقط */
+    min-height: 100px; 
+    resize: vertical; 
 }
 
 
@@ -456,32 +456,88 @@ hr{
     color: #dc3545; 
 }
 
-/* شبكة عرض التقييمات */
+/* ==== تعديل: تنسيقات السلايدر الجديدة ==== */
+/* 1. إزالة تنسيق الشبكة القديم */
+/*
 .reviews-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 20px;
 }
+*/
+
+/* 2. إضافة تنسيقات السلايدر */
+.reviews-slider-wrapper {
+    position: relative;
+    max-width: 700px; /* عرض مناسب لسلايد واحد */
+    margin: 0 auto;
+    overflow: hidden; /* هذا هو مفتاح السلايدر */
+    border-radius: 15px; /* ليتناسب مع البطاقة */
+    border: 1px solid var(--border);
+    background: var(--background); /* خلفية لتجنب "القفز" أثناء التحميل */
+}
+
+.reviews-slider {
+    display: flex;
+    /* سيتم حساب العرض بالـ JS */
+    transition: transform 0.5s ease-in-out; /* حركة النقل */
+}
+
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--primary-dark);
+    color: var(--text-color);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.3s;
+    display: none; /* إخفاؤها مبدئياً */
+}
+.slider-btn:hover {
+    background: var(--primary);
+}
+.slider-btn.prev {
+    right: 15px; /* لليمين بسبب RTL */
+}
+.slider-btn.next {
+    left: 15px; /* لليسار بسبب RTL */
+}
+/* ==== نهاية تنسيقات السلايدر ==== */
+
 
 .review-card {
     background: var(--background);
-    border: 1px solid var(--border);
+    /* border: 1px solid var(--border); */ /* تم نقله للـ wrapper */
     border-radius: 15px;
     padding: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    display: flex; /* إضافة فليكس */
-    flex-direction: column; /* لترتيب المحتوى */
+    /* box-shadow: 0 4px 10px rgba(0,0,0,0.1); */ /* تم إزالته */
+    display: flex; 
+    flex-direction: column; 
+    
+    /* ==== تعديل: تنسيق البطاقة داخل السلايدر ==== */
+    flex: 0 0 100%; /* الأهم: كل بطاقة تأخذ 100% من عرض الـ wrapper */
+    box-sizing: border-box; /* لضمان حساب البادينج صحيح */
+    min-height: 250px; /* ارتفاع موحد للبطاقات */
 }
 .review-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
+
 }
 .review-card-name {
     font-size: 1.3rem;
     font-weight: 700;
     color: var(--primary);
+    padding-right: 35px;
+    padding-left: 35px;
 }
 .review-card-rating .fa-star {
     color: #ffc107; 
@@ -489,17 +545,16 @@ hr{
 .review-card-rating .fa-star.empty {
     color: var(--gray); 
 }
-
-/* تنسيق التعليق (جديد) */
 .review-card-comment {
     color: var(--text-color);
     font-size: 1rem;
     line-height: 1.6;
     margin: 10px 0;
-    flex-grow: 1; /* لجعل التعليق يملأ المساحة */
-    word-wrap: break-word; /* لضمان عدم خروج النص */
+    flex-grow: 1; 
+    word-wrap: break-word; 
+    padding-right: 40px;
+    padding-left: 40px;
 }
-
 .review-card-timestamp {
     font-size: 0.8rem;
     color: var(--gray);
@@ -901,6 +956,18 @@ hr{
     .star-rating label {
         font-size: 2rem; 
     }
+    /* تعديل السلايدر للجوال */
+    .reviews-slider-wrapper {
+        max-width: 100%; /* عرض كامل للجوال */
+    }
+    .slider-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+    .review-card {
+        min-height: 280px; /* زيادة الارتفاع قليلاً للجوال */
+    }
 }
 /* --- نهاية كود الجوال --- */
 </style>
@@ -970,9 +1037,13 @@ hr{
             <button type="submit" id="submit-review-btn" class="btn">إرسال التقييم</button>
         </form>
 
-        <div id="reviews-grid" class="reviews-grid">
-            </div>
-    </div>
+        <div class="reviews-slider-wrapper">
+            <div id="reviews-slider" class="reviews-slider">
+                </div>
+            <button class="slider-btn prev" id="slide-prev"><i class="fas fa-chevron-right"></i></button>
+            <button class="slider-btn next" id="slide-next"><i class="fas fa-chevron-left"></i></button>
+        </div>
+        </div>
 </section>
 <section id="aboutMe" class="about-section">
   <div class="about-container">
@@ -1038,11 +1109,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const productsGrid = document.querySelector('.products-grid');
     const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTlUSvrMbis618rLXVg4WVUmPeJ86o3H0wcyafL3i8sUlvTYawjL7lagu7fyzqeB0UFfD0w8f8to4l3/pub?gid=0&single=true&output=csv';
     
-    // عناصر التقييمات
-    const reviewsGrid = document.getElementById('reviews-grid');
+    // ==== تعديل: عناصر التقييمات والسلايدر ====
     const reviewForm = document.getElementById('review-form');
     const submitReviewBtn = document.getElementById('submit-review-btn');
     const formMessage = document.getElementById('form-message');
+    // عناصر السلايدر
+    const slider = document.getElementById('reviews-slider');
+    const prevBtn = document.getElementById('slide-prev');
+    const nextBtn = document.getElementById('slide-next');
+    let autoplayTimer; // متغير لحفظ مؤقت التشغيل التلقائي
+    let currentReviewIndex = 0; // متغير لتتبع التقييم الحالي
+    let allReviews = []; // مصفوفة لحفظ التقييمات
+    // ==== نهاية تعديل العناصر ====
+
 
     /* !! الصق الروابط هنا !! */
     const reviewSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTlUSvrMbis618rLXVg4WVUmPeJ86o3H0wcyafL3i8sUlvTYawjL7lagu7fyzqeB0UFfD0w8f8to4l3/pub?gid=169688022&single=true&output=csv'; 
@@ -1196,7 +1275,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ==== بداية وظائف التقييمات (معدلة) ====
+    // ==== بداية وظائف التقييمات والسلايدر (معدلة) ====
     
     function createStarRating(rating) {
         let starsHTML = '';
@@ -1207,33 +1286,102 @@ document.addEventListener('DOMContentLoaded', () => {
         return starsHTML;
     }
 
+    // وظيفة عرض التقييمات داخل السلايدر
     function displayReviews(reviews) {
-        reviewsGrid.innerHTML = ''; 
+        slider.innerHTML = ''; // إفراغ السلايدر
         if (reviews.length === 0) {
-            reviewsGrid.innerHTML = '<p style="text-align:center; color: var(--gray);">لا توجد تقييمات حالياً. كن أول من يضيف تقييم!</p>';
+            slider.innerHTML = '<p style="text-align:center; color: var(--gray); padding: 20px;">لا توجد تقييمات حالياً. كن أول من يضيف تقييم!</p>';
             return;
         }
         
-        reviews.slice().reverse().forEach(review => {
+        allReviews = reviews.slice().reverse(); // حفظ التقييمات (الأحدث أولاً)
+        
+        let allReviewsHTML = '';
+        allReviews.forEach(review => {
             const ratingHTML = createStarRating(review.rating);
             const reviewDate = new Date(review.timestamp).toLocaleDateString('ar-SA'); 
             
-            // إضافة حقل التعليق (review.comment)
-            const reviewCardHTML = `
+            allReviewsHTML += `
             <div class="review-card">
                 <div class="review-card-header">
                     <h3 class="review-card-name">${review.name}</h3>
                     <div class="review-card-rating">${ratingHTML}</div>
                 </div>
-                <p class="review-card-comment">${review.comment}</p> <div class="review-card-timestamp">${reviewDate}</div>
+                <p class="review-card-comment">${review.comment}</p>
+                <div class="review-card-timestamp">${reviewDate}</div>
             </div>`;
-            reviewsGrid.innerHTML += reviewCardHTML;
         });
+        
+        slider.innerHTML = allReviewsHTML;
+        setupSlider(); // استدعاء وظيفة إعداد السلايدر
     }
 
+    // وظيفة إعداد وتشغيل السلايدر
+    function setupSlider() {
+        currentReviewIndex = 0; // إعادة التعيين
+        const slides = slider.querySelectorAll('.review-card');
+        
+        if (slides.length > 1) { // فقط إذا كان هناك أكثر من تقييم واحد
+            prevBtn.style.display = 'block';
+            nextBtn.style.display = 'block';
+
+            function updateSliderPosition() {
+                slider.style.transform = `translateX(${currentReviewIndex * 100}%)`; // تم عكس الإشارة لتناسب RTL
+            }
+
+            function showNext() {
+                currentReviewIndex = (currentReviewIndex - 1 + slides.length) % slides.length; // تم عكس المنطق لـ RTL
+                updateSliderPosition();
+            }
+
+            function showPrev() {
+                currentReviewIndex = (currentReviewIndex + 1) % slides.length; // تم عكس المنطق لـ RTL
+                updateSliderPosition();
+            }
+
+            function startAutoplay() {
+                stopAutoplay(); // إيقاف أي مؤقت قديم
+                autoplayTimer = setInterval(showNext, 5000); // 5 ثواني
+            }
+
+            function stopAutoplay() {
+                clearInterval(autoplayTimer);
+            }
+
+            // ربط الأحداث
+// ربط الأحداث (تم تعديل الدوال لحل مشكلة الاتجاه)
+            nextBtn.addEventListener('click', () => {
+                showPrev(); // تم التبديل
+                stopAutoplay(); // إيقاف التشغيل التلقائي عند النقر
+            });
+            prevBtn.addEventListener('click', () => {
+                showNext(); // تم التبديل
+                stopAutoplay();
+            });
+            
+            // إيقاف التشغيل التلقائي عند تمرير الماوس
+            const sliderWrapper = document.querySelector('.reviews-slider-wrapper');
+            sliderWrapper.addEventListener('mouseenter', stopAutoplay);
+            sliderWrapper.addEventListener('mouseleave', startAutoplay);
+
+            startAutoplay(); // بدء التشغيل التلقائي
+            updateSliderPosition();
+
+        } else {
+            // إخفاء الأسهم إذا كان هناك تقييم واحد أو لا يوجد
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+        }
+    }
+
+
+    // وظيفة جلب التقييمات (للقراءة)
     async function fetchReviews() {
+        // إيقاف المؤقت القديم قبل بدء جلب جديد
+        clearInterval(autoplayTimer); 
+        
         try {
-            reviewsGrid.innerHTML = '<p style="text-align:center; color: var(--primary);">...جاري تحميل التقييمات...</p>';
+            slider.innerHTML = '<p style="text-align:center; color: var(--primary); padding: 20px;">...جاري تحميل التقييمات...</p>';
             const response = await fetch(reviewSheetURL + '&_t=' + new Date().getTime());
             if (!response.ok) throw new Error('فشل الاتصال بملف التقييمات');
             
@@ -1243,9 +1391,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const reviews = lines
                 .filter(line => line && line.trim() !== '')
                 .map(line => {
-                    // ==== تعديل: قراءة 4 أعمدة ====
                     const [name, rating, timestamp, comment] = line.trim().split(',');
-                    return { name, rating, timestamp, comment }; // <-- إضافة التعليق
+                    return { name, rating, timestamp, comment }; 
                 })
                 .filter(r => r && r.name && r.rating);
                 
@@ -1253,10 +1400,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error('خطأ في جلب التقييمات:', error);
-            reviewsGrid.innerHTML = '<p style="text-align:center; color: red;">حدث خطأ أثناء تحميل التقييمات.</p>';
+            slider.innerHTML = '<p style="text-align:center; color: red; padding: 20px;">حدث خطأ أثناء تحميل التقييمات.</p>';
         }
     }
 
+    // وظيفة إرسال التقييم
     reviewForm.addEventListener('submit', async (e) => {
         e.preventDefault(); 
         submitReviewBtn.disabled = true;
@@ -1266,10 +1414,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             const name = document.getElementById('reviewer-name').value;
-            const comment = document.getElementById('reviewer-comment').value; // <-- جلب التعليق
+            const comment = document.getElementById('reviewer-comment').value; 
             const rating = new FormData(reviewForm).get('rating');
             
-            if (!rating || !name || !comment) { // <-- التأكد من ملء جميع الحقول
+            if (!rating || !name || !comment) {
                 throw new Error("الرجاء ملء جميع الحقول (الاسم، التعليق، والنجوم)");
             }
             
@@ -1279,7 +1427,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                   'Content-Type': 'application/json',
                 },
-                // ==== تعديل: إرسال التعليق مع البيانات ====
                 body: JSON.stringify({ name: name, rating: rating, comment: comment })
             });
 
@@ -1287,6 +1434,8 @@ document.addEventListener('DOMContentLoaded', () => {
             formMessage.classList.add('success');
             reviewForm.reset(); 
             
+            // إيقاف المؤقت القديم وإعادة جلب التقييمات
+            clearInterval(autoplayTimer);
             setTimeout(fetchReviews, 1000); 
             
         } catch (error) {
